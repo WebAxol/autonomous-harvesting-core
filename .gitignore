@@ -1,0 +1,13 @@
+## .NET build output
+bin/
+obj/
+
+## User-specific and IDE files
+*.user
+*.suo
+.vs/
+.idea/
+
+## Test and coverage artifacts
+TestResults/
+*.coverage
