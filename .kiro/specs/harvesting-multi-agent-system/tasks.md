@@ -49,26 +49,26 @@ Conventions used throughout:
     - Run `dotnet build HarvestingCore.sln`
     - _Requirements: 1.1, 2.1_
 
-- [ ] 7. Pathfinding layer
-  - [ ] 7.1 Implement `HeapEntry` and `DeterministicMinHeap`
+- [x] 7. Pathfinding layer
+  - [x] 7.1 Implement `HeapEntry` and `DeterministicMinHeap`
     - Create `src/HarvestingCore/Pathfinding/HeapEntry.cs` as an internal readonly struct with `CellIndex`, `Priority`, `Sequence`
     - Create `src/HarvestingCore/Pathfinding/DeterministicMinHeap.cs` as an array-backed binary heap; `Push` stamps a monotonically increasing sequence number, and `Less(a,b)` is the strict total order `a.Priority < b.Priority || (equal priority && a.Sequence < b.Sequence)`
     - Implement `Count`, `Push`, `Pop`, `Clear` with `Clear` reusing the backing array
     - _Requirements: 13.7, 18.4_
 
-  - [ ] 7.3 Implement `CostField` and `Heuristics`
+  - [x] 7.3 Implement `CostField` and `Heuristics`
     - Create `src/HarvestingCore/Pathfinding/CostField.cs` with `Unreachable = int.MaxValue`, `Width`, `Height`, `Origin`, read-only `Costs`, `IsReachable`, `CostAt`, and internal `MutableCosts`/`Predecessors` (`-1` for none)
     - Create `src/HarvestingCore/Pathfinding/Heuristics.cs` with `Zero`, `Octile(a, b, minCost) = minCost * max(|dx|, |dy|)`, and `SquaredEuclidean(a, b) = dx*dx + dy*dy`
     - _Requirements: 14.1, 14.7_
 
-  - [ ] 7.4 Implement the shared search skeleton in `PathFinder`
+  - [x] 7.4 Implement the shared search skeleton in `PathFinder`
     - Create `src/HarvestingCore/Pathfinding/PathFinder.cs` holding `WorldModel`, `SimulationConfig`, and reused scratch state (`DeterministicMinHeap`, `int[] _costs`, `int[] _predecessors`, `bool[] _closed`) version-stamped rather than cleared so reuse stays `O(1)`
     - Implement `internal int StepCostInto(GridPosition)` attaching cost to the entered cell and returning the `Unreachable` sentinel for `Blocked`
     - Implement the shared loop: pop cheapest, skip stale closed entries, test the termination predicate on **pop**, expand neighbours in `MoveOrder` sequence skipping out-of-bounds and `Blocked`, never relax from a sentinel cost, relax on strict improvement recording the predecessor
     - Implement `Reconstruct(targetIndex)` walking the predecessor chain and reversing, so element 0 is the origin
     - _Requirements: 13.1, 13.2, 13.3, 14.1, 14.3, 14.6_
 
-  - [ ] 7.5 Implement the four public search entry points
+  - [x] 7.5 Implement the four public search entry points
     - Add `PathToBestCell(origin, targetState, ownerFilter = null)` terminating on the first popped cell holding the target state and passing the owner filter; returns an empty list when none is reachable
     - Add `PathToCell(origin, target, heuristicOverride = null)` terminating on the target index, short-circuiting `origin == target` to a single-element path, and returning an empty list for out-of-bounds, `Blocked`, or unreachable targets
     - Add `ComputeCostField(origin)` running the loop with no termination predicate and no heuristic, copying the finalised costs and predecessors into a `CostField` snapshot
@@ -76,7 +76,7 @@ Conventions used throughout:
     - Never return null: an empty `IReadOnlyList<GridPosition>` is the sole failure representation
     - _Requirements: 13.4, 13.5, 13.6, 14.2, 14.4, 14.5_
 
-  - [ ] 7.12 Verify pathfinding group
+  - [x] 7.12 Verify pathfinding group
     - Run `dotnet build HarvestingCore.sln`
     - _Requirements: 13.1, 14.1_
 
