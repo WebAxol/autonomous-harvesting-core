@@ -84,21 +84,21 @@ Conventions used throughout:
   - Ensure the solution builds clean, ask the user if questions arise.
   - _Requirements: 13.8, 14.8_
 
-- [ ] 9. Agent layer
-  - [ ] 9.1 Implement `PendingMutations`, `AgentContext`, and registration-only `AgentManager`
+- [x] 9. Agent layer
+  - [x] 9.1 Implement `PendingMutations`, `AgentContext`, and registration-only `AgentManager`
     - Create `src/HarvestingCore/Coordination/PendingMutations.cs` with deduplicated, insertion-ordered `TransferReadyAgentIds` and `AssistanceCleanupAgentIds`, `RedistributionRequested`, the matching `Enqueue*`/`RequestRedistribution` methods, and `Clear`
     - Create `src/HarvestingCore/Coordination/AgentManager.cs` with the `List<Agent>`/`List<Harvester>`/`List<Tractor>` registration-ordered collections, the id lookup dictionary (never iterated), `Register` assigning `RegistrationIndex` and the initial `IDLE` state, rejecting a duplicate id with `InvalidOperationException` naming the id and a null agent with `ArgumentNullException`, plus `TryGetAgent`; the coordination methods land in task 12
     - Create `src/HarvestingCore/Agents/AgentContext.cs` exposing `Model`, `Config`, `PathFinder`, `Manager`, `Pending`, `TickIndex`, and a discharge sink so `DumpLoad` can accumulate the total without `AgentContext` referencing `World` (keep `World.DischargedTotal` as the read-only projection over that sink)
     - _Requirements: 16.3, 16.4, 16.5_
 
-  - [ ] 9.2 Create the state abstraction and registry with hook-only shells
+  - [x] 9.2 Create the state abstraction and registry with hook-only shells
     - Create `src/HarvestingCore/Agents/StateId.cs` and `src/HarvestingCore/Agents/AgentRole.cs`
     - Create `src/HarvestingCore/Agents/States/AgentState.cs` with abstract `Id`, virtual `OnEnter`, abstract `Execute`, virtual `OnExit`
     - Create the eight concrete classes `IdleState`, `HarvestState`, `GoToRefuelState`, `GoToDumpState`, `GoToMeetingPointState`, `WaitTractorState`, `WaitHarvesterState`, `InactiveState` as immutable, hook-only shells; behaviour bodies land in task 10
     - Create `src/HarvestingCore/Agents/States/AgentStateRegistry.cs` holding exactly one singleton per `StateId` with `Get(StateId)`
     - _Requirements: 8.1, 9.1_
 
-  - [ ] 9.3 Implement the `Agent` base mechanics
+  - [x] 9.3 Implement the `Agent` base mechanics
     - Create `src/HarvestingCore/Agents/Agent.cs` with the public surface from the design (`Id`, `RegistrationIndex`, `Position`, `Fuel`, `Load`, `MaxLoad`, `MaxFuel`, `FuelConsumption`, `CurrentState`, read-only `Path`, `MeetingPoint`, `PathInvalidatedThisTick`, `ArrivedAtDestination`, `InactiveSinceTick`, abstract `Role`)
     - Constructor validation: `maxLoad < 1`, `maxFuel < 1`, `fuelConsumption < 1`, null/empty/whitespace `id`, and a start position out of bounds or `Blocked`, each with an exception naming the offending value; unspecified limits fall back to the `SimulationConfig` defaults
     - Implement `Transition(next, context)`: return immediately when `next == CurrentState`, otherwise `OnExit` on the outgoing state, set `CurrentState`, `OnEnter` on the incoming state, in that order
@@ -108,12 +108,12 @@ Conventions used throughout:
     - Leave `Execute` and the abstract `TransitionTable` member to task 11
     - _Requirements: 3.1, 3.2, 3.5, 3.6, 3.7, 3.8, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 5.1, 5.2, 5.3, 5.4, 6.1, 6.2, 9.10_
 
-  - [ ] 9.4 Implement `Harvester` and `Tractor`
+  - [x] 9.4 Implement `Harvester` and `Tractor`
     - Create `src/HarvestingCore/Agents/Harvester.cs` with `TryHarvest` (succeeds only on a `Crop` cell at the harvester position with `Load < MaxLoad`, setting the cell to `Harvested` and raising load by one), `IsAreaFinished` (no owned cell holds `Crop`), `HasAssignedCrop`, `AssistanceRequested`
     - Create `src/HarvestingCore/Agents/Tractor.cs` with `AssignedHarvesterId` (null when unpaired)
     - _Requirements: 7.1, 7.2, 7.3, 7.5, 8.3, 9.4_
 
-  - [ ] 9.11 Verify agent group
+  - [x] 9.11 Verify agent group
     - Run `dotnet build HarvestingCore.sln`
     - _Requirements: 3.1, 4.1_
 
