@@ -17,6 +17,12 @@ namespace HarvestingCore.Coordination
         private readonly List<Tractor> _tractors = new List<Tractor>();
         private readonly Dictionary<string, Agent> _byId = new Dictionary<string, Agent>();
 
+        // Assistance_Mapping, maintained as exact inverses. Populated by RequestAssistance/
+        // LinkPair/UnlinkPair/ReleasePair (task 13); TryGetPartner/IsPaired below already
+        // read them so the FSM transition tables can query pairing state.
+        private readonly Dictionary<string, string> _tractorToHarvester = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _harvesterToTractor = new Dictionary<string, string>();
+
         public IReadOnlyList<Agent> Agents { get; }
         public IReadOnlyList<Harvester> Harvesters { get; }
         public IReadOnlyList<Tractor> Tractors { get; }
@@ -66,6 +72,61 @@ namespace HarvestingCore.Coordination
         public bool TryGetAgent(string id, out Agent agent)
         {
             return _byId.TryGetValue(id, out agent);
+        }
+
+        /// <summary>Assistance_Mapping lookup: true when the agent (harvester or
+        /// tractor) currently holds a paired partner.</summary>
+        public bool IsPaired(Agent agent)
+        {
+            if (agent == null)
+            {
+                return false;
+            }
+            return agent.Role == AgentRole.Harvester
+                ? _harvesterToTractor.ContainsKey(agent.Id)
+                : _tractorToHarvester.ContainsKey(agent.Id);
+        }
+
+        /// <summary>Resolves the paired partner for a harvester or tractor, if any.
+        /// Read by the FSM transition tables (rows referencing "partner lost").</summary>
+        public bool TryGetPartner(Agent agent, out Agent partner)
+        {
+            partner = null;
+            if (agent == null)
+            {
+                return false;
+            }
+
+            string partnerId;
+            if (agent.Role == AgentRole.Harvester)
+            {
+                if (!_harvesterToTractor.TryGetValue(agent.Id, out partnerId))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (!_tractorToHarvester.TryGetValue(agent.Id, out partnerId))
+                {
+                    return false;
+                }
+            }
+
+            return _byId.TryGetValue(partnerId, out partner);
+        }
+
+        /// <summary>Req 15.6: true when every registered agent holds INACTIVE.</summary>
+        public bool AllInactive()
+        {
+            for (int i = 0; i < _agents.Count; i++)
+            {
+                if (_agents[i].CurrentState != StateId.Inactive)
+                {
+                    return false;
+                }
+            }
+            return _agents.Count > 0;
         }
     }
 }

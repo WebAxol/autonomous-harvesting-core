@@ -17,5 +17,10 @@ namespace HarvestingCore.Agents.States
         public override void Execute(Agent agent, AgentContext context)
         {
         }
+
+        public override void OnExit(Agent agent, AgentContext context)
+        {
+            agent.ClearTransferCompleted();
+        }
     }
 }

@@ -135,26 +135,26 @@ Conventions used throughout:
     - Run `dotnet build HarvestingCore.sln`
     - _Requirements: 5.1, 6.1_
 
-- [ ] 11. FSM tables and tick-level agent execution
-  - [ ] 11.1 Implement `TransitionRule` and `TransitionTable`
+- [x] 11. FSM tables and tick-level agent execution
+  - [x] 11.1 Implement `TransitionRule` and `TransitionTable`
     - Create `src/HarvestingCore/Agents/TransitionRule.cs` as a readonly struct with `Source`, `Target`, `Guard`, `RequirementRef`
     - Create `src/HarvestingCore/Agents/TransitionTable.cs` holding one flat priority-ordered `TransitionRule[]`, with `Evaluate` returning the first matching rule's target so the array index *is* the priority index and at most one transition happens per tick
     - _Requirements: 8.13, 9.11_
 
-  - [ ] 11.2 Implement the two role transition tables
+  - [x] 11.2 Implement the two role transition tables
     - Create `src/HarvestingCore/Agents/TransitionTables.cs` with the harvester table's 13 rows and the tractor table's 10 rows in exactly the design's documented order, each row carrying its `RequirementRef`
     - Guards are pure predicates that never mutate; the refuel- and dump-completion rows read the `RefuelledThisTick`/`DumpedThisTick` per-tick flags rather than re-deriving from `Fuel == MaxFuel`
     - Include the station-suppression conjuncts `RefuelStations.Count > 0` and `DumpSites.Count > 0` so an empty collection suppresses the transition
     - Wire `Harvester.TransitionTable` and `Tractor.TransitionTable` to the corresponding tables
     - _Requirements: 8.2, 8.3, 8.4, 8.5, 8.6, 8.7, 8.8, 8.9, 8.10, 8.11, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7, 9.8, 5.4, 6.4_
 
-  - [ ] 11.3 Implement `Agent.Execute`
+  - [x] 11.3 Implement `Agent.Execute`
     - Clear `PathInvalidatedThisTick`, `ArrivedAtDestination`, `RefuelledThisTick`, `DumpedThisTick` at the top
     - Pre-empt with the fuel guard: a non-inactive agent at zero fuel transitions to `INACTIVE` and returns; an already-inactive agent returns immediately since `INACTIVE` is terminal
     - Run the current state's `Execute` exactly once, re-check fuel afterwards because a `Move` may have drained it, then evaluate the transition table and apply the single resulting transition
     - _Requirements: 3.3, 3.4, 8.12, 9.9, 15.1_
 
-  - [ ] 11.6 Verify FSM group
+  - [x] 11.6 Verify FSM group
     - Run `dotnet build HarvestingCore.sln`
     - _Requirements: 8.13, 9.11_
 

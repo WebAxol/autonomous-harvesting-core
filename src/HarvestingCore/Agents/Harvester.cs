@@ -10,6 +10,7 @@ namespace HarvestingCore.Agents
     public sealed class Harvester : Agent
     {
         public override AgentRole Role => AgentRole.Harvester;
+        protected override TransitionTable TransitionTable => TransitionTables.Harvester;
 
         public bool AssistanceRequested { get; internal set; }
 

@@ -35,6 +35,14 @@ namespace HarvestingCore.Agents
         internal bool RefuelledThisTick { get; private set; }
         internal bool DumpedThisTick { get; private set; }
 
+        /// <summary>Set by AgentManager.ResolveTransfers (task 13) on both sides of a
+        /// completed load transfer. Read by the WAIT_TRACTOR/WAIT_HARVESTER transition
+        /// rows instead of re-deriving completion from Load/Position. Cleared by the
+        /// wait states' OnExit, since the flag is set one phase (tick N's Phase 2) before
+        /// the Execute call that must observe it (tick N+1's Phase 1) and must not be
+        /// cleared by the top-of-Execute reset in between.</summary>
+        internal bool TransferCompletedThisTick { get; private set; }
+
         protected Agent(string id, GridPosition start, WorldModel model, SimulationConfig config,
             int? maxLoad = null, int? maxFuel = null, int? fuelConsumption = null)
         {
@@ -237,7 +245,23 @@ namespace HarvestingCore.Agents
             InactiveSinceTick = tickIndex;
         }
 
-        /// <summary>Clears the per-tick action flags; called at the top of Execute (task 11).</summary>
+        /// <summary>Set by AgentManager.ResolveTransfers (task 13) on both sides of a
+        /// completed load transfer, so the WAIT_TRACTOR/WAIT_HARVESTER transition rows
+        /// can read the result of an action that happened in a prior tick's Phase 2
+        /// (Req 8.9, 9.6, 9.7). Consumed and cleared by the wait states' OnExit.</summary>
+        internal void MarkTransferCompleted()
+        {
+            TransferCompletedThisTick = true;
+        }
+
+        /// <summary>Clears the transfer-completion flag once the wait state has been
+        /// exited via the transition it caused.</summary>
+        internal void ClearTransferCompleted()
+        {
+            TransferCompletedThisTick = false;
+        }
+
+        /// <summary>Clears the per-tick action flags; called at the top of Execute.</summary>
         internal void ResetPerTickFlags()
         {
             PathInvalidatedThisTick = false;
@@ -245,6 +269,40 @@ namespace HarvestingCore.Agents
             RefuelledThisTick = false;
             DumpedThisTick = false;
         }
+
+        /// <summary>Req 3.3: the current state's Execute exactly once, then the
+        /// pre-emptive fuel guard and the role's transition table (Req 8.12, 8.13,
+        /// 9.9, 9.11, 15.1). See remarks on the fuel guard ordering in the design.</summary>
+        public void Execute(AgentContext context)
+        {
+            ResetPerTickFlags();
+
+            if (CurrentState != StateId.Inactive && Fuel <= 0)
+            {
+                Transition(StateId.Inactive, context);
+                return;
+            }
+            if (CurrentState == StateId.Inactive)
+            {
+                return;
+            }
+
+            AgentStateRegistry.Get(CurrentState).Execute(this, context);
+
+            if (Fuel <= 0)
+            {
+                Transition(StateId.Inactive, context);
+                return;
+            }
+
+            if (TransitionTable.Evaluate(this, context, out StateId next))
+            {
+                Transition(next, context);
+            }
+        }
+
+        /// <summary>The role-specific, priority-ordered rule set (Req 8.13, 9.11).</summary>
+        protected abstract TransitionTable TransitionTable { get; }
 
         private bool IsAtAnyOf(IReadOnlyList<GridPosition> positions)
         {

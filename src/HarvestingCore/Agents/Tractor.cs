@@ -11,6 +11,7 @@ namespace HarvestingCore.Agents
     public sealed class Tractor : Agent
     {
         public override AgentRole Role => AgentRole.Tractor;
+        protected override TransitionTable TransitionTable => TransitionTables.Tractor;
 
         /// <summary>Null when unpaired.</summary>
         public string AssignedHarvesterId { get; internal set; }

@@ -11,6 +11,10 @@ namespace HarvestingCore.Configuration
     /// </summary>
     public sealed class SimulationConfig
     {
+        public double DumpPreferenceFactor { get; }
+        public double CapacityFactor { get; }
+        public double HarvesterFuelReserveMultiplier { get; }
+        public double TractorFuelReserveMultiplier { get; }
         public int CropCost { get; }
         public int EmptyCost { get; }
         public int HarvestedCost { get; }
@@ -25,6 +29,10 @@ namespace HarvestingCore.Configuration
         public static SimulationConfig Default { get; } = new SimulationConfig();
 
         public SimulationConfig(
+            double dumpPreferenceFactor = 1.0,
+            double capacityFactor = 0.5,
+            double harvesterFuelReserveMultiplier = 1.2,
+            double tractorFuelReserveMultiplier = 2.5,
             int cropCost = 1,
             int emptyCost = 2,
             int harvestedCost = 10,
@@ -36,6 +44,22 @@ namespace HarvestingCore.Configuration
             double cropDensity = 0.55,
             double blockedDensity = 0.10)
         {
+            if (capacityFactor < 0.0 || capacityFactor > 1.0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(capacityFactor), "capacityFactor must be within [0, 1].");
+            }
+            if (dumpPreferenceFactor < 0.0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(dumpPreferenceFactor), "dumpPreferenceFactor must not be negative.");
+            }
+            if (harvesterFuelReserveMultiplier < 0.0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(harvesterFuelReserveMultiplier), "harvesterFuelReserveMultiplier must not be negative.");
+            }
+            if (tractorFuelReserveMultiplier < 0.0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(tractorFuelReserveMultiplier), "tractorFuelReserveMultiplier must not be negative.");
+            }
             if (cropCost < 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(cropCost), "cropCost must be at least 1.");
@@ -73,6 +97,10 @@ namespace HarvestingCore.Configuration
                 throw new ArgumentOutOfRangeException(nameof(blockedDensity), "cropDensity plus blockedDensity must not exceed 1.");
             }
 
+            DumpPreferenceFactor = dumpPreferenceFactor;
+            CapacityFactor = capacityFactor;
+            HarvesterFuelReserveMultiplier = harvesterFuelReserveMultiplier;
+            TractorFuelReserveMultiplier = tractorFuelReserveMultiplier;
             CropCost = cropCost;
             EmptyCost = emptyCost;
             HarvestedCost = harvestedCost;
