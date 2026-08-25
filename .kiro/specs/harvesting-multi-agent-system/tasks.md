@@ -187,14 +187,14 @@ Conventions used throughout:
     - Run `dotnet build HarvestingCore.sln`
     - _Requirements: 10.1, 11.1, 12.1_
 
-- [ ] 14. World façade and tick pipeline
-  - [ ] 14.1 Implement the `World` façade
+- [x] 14. World façade and tick pipeline
+  - [x] 14.1 Implement the `World` façade
     - Create `src/HarvestingCore/World.cs` (namespace `HarvestingCore`) owning the `WorldModel`, `AgentManager`, `PathFinder`, `SimulationConfig`, `IRandomSource`, `AreaDistributor` and `PendingMutations`
     - Expose read-only `TickIndex`, `DischargedTotal`, `IsHalted` (delegating to `AllInactive`), `Agents`, `Cells`
     - Implement `Register`, `GenerateGrid`, `RedistributeAreas`, and `internal AddDischarged` backing the discharge sink `AgentContext` writes through
     - _Requirements: 6.3, 15.6, 16.6, 18.2, 18.6_
 
-  - [ ] 14.2 Implement `World.Tick` as the four ordered phases
+  - [x] 14.2 Implement `World.Tick` as the four ordered phases
     - Build one `AgentContext` per tick so every agent observes the same `TickIndex`
     - Phase 1: execute every registered agent exactly once in registration order, with cross-agent effects recorded in `PendingMutations` only
     - Phase 2: `ResolveAssistanceCleanup` before `ResolveTransfers`, so a pair whose member went inactive cannot transfer this tick
