@@ -117,21 +117,21 @@ Conventions used throughout:
     - Run `dotnet build HarvestingCore.sln`
     - _Requirements: 3.1, 4.1_
 
-- [ ] 10. State behaviours
-  - [ ] 10.1 Implement the movement-and-action states
+- [x] 10. State behaviours
+  - [x] 10.1 Implement the movement-and-action states
     - Fill `HarvestState.Execute`: `TryHarvest`, and on failure request or follow a path to the best owned `Crop` cell and `Move`
     - Fill `GoToRefuelState`: `OnEnter` plans `PathToCell` to the nearest refuel station, `Execute` moves and refuels on arrival, `OnExit` clears the path
     - Fill `GoToDumpState`: `OnEnter` plans `PathToCell` to the nearest dump site, `Execute` moves and dumps on arrival, `OnExit` clears the path
     - Fill `GoToMeetingPointState`: `OnEnter` plans `PathToCell` to `MeetingPoint`, `Execute` moves, `OnExit` clears the path
     - _Requirements: 5.1, 6.1, 7.1, 7.4_
 
-  - [ ] 10.2 Implement the idle, waiting, and inactive states
+  - [x] 10.2 Implement the idle, waiting, and inactive states
     - Fill `IdleState.OnEnter` to clear the path; `Execute` does nothing and waits for a guard
     - Fill `WaitTractorState` and `WaitHarvesterState`: `OnEnter` clears the path and enqueues `EnqueueTransferReady`; `Execute` does nothing so the transfer is resolved after all agents run
     - Fill `InactiveState.OnEnter`: clear the path, record `InactiveSinceTick`, `EnqueueAssistanceCleanup`, and `RequestRedistribution` when the agent is a harvester; `Execute` does nothing so position and load are frozen
     - _Requirements: 12.7, 15.1, 15.2, 15.3, 16.2_
 
-  - [ ] 10.3 Verify state behaviours
+  - [x] 10.3 Verify state behaviours
     - Run `dotnet build HarvestingCore.sln`
     - _Requirements: 5.1, 6.1_
 
