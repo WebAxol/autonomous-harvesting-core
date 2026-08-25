@@ -35,7 +35,6 @@ No `Dictionary` or `HashSet` is ever iterated. Hash containers are used only for
 ```
 HarvestingCore.sln
 ├── src/HarvestingCore/            netstandard2.1 class library  (no dependencies)
-└── tests/HarvestingCore.Tests/    net8.0 console app  (references HarvestingCore only)
 ```
 
 `netstandard2.1` for the library is the deliberate choice: it is the highest standard Unity's scripting runtime consumes directly, so the same DLL drops into a Unity project unchanged. Two consequences the design must absorb:

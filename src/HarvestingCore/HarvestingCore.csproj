@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Requirement 18.1: the library references only assemblies included in the target
+    .NET class library framework. There are intentionally ZERO PackageReference
+    elements in this file and there must never be any.
+
+    netstandard2.1 is the highest standard Unity's scripting runtime consumes
+    directly, so the produced DLL drops into a Unity project unchanged.
+
+    LangVersion is pinned to 8.0 (the highest version netstandard2.1 fully
+    supports without runtime-side attributes). This mechanically prevents
+    `record` and `init` accessors, which need IsExternalInit / compiler-generated
+    runtime support that netstandard2.1 does not provide. Immutability is
+    expressed with readonly fields, get-only properties, and constructor
+    parameters with defaults.
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <RootNamespace>HarvestingCore</RootNamespace>
+    <AssemblyName>HarvestingCore</AssemblyName>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+</Project>
