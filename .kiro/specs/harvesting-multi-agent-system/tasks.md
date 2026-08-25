@@ -162,19 +162,19 @@ Conventions used throughout:
   - Ensure the solution builds clean, ask the user if questions arise.
   - _Requirements: 3.3, 8.1, 9.1_
 
-- [ ] 13. Coordination layer
-  - [ ] 13.1 Implement `AreaDistributor`
+- [x] 13. Coordination layer
+  - [x] 13.1 Implement `AreaDistributor`
     - Create `src/HarvestingCore/Coordination/AreaDistributor.cs` with `Distribute(model, harvesters)`
     - Clear every owner first, then seed all non-`INACTIVE` harvesters in registration order (skipping `Blocked` or already-owned seed cells, assigning the seed cell to its own harvester), then run one FIFO BFS expanding through `MoveOrder` in sequence and claiming only unowned non-`Blocked` cells
     - With zero active harvesters nothing is seeded and every owner stays unassigned
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5, 12.9_
 
-  - [ ] 13.6 Implement tractor selection and meeting point negotiation
+  - [x] 13.6 Implement tractor selection and meeting point negotiation
     - Add `TrySelectTractor(harvester, harvesterField, out best)` to `AgentManager`: scan tractors in registration order, keep only `IDLE`, unpaired and non-`INACTIVE` candidates that the cost field reaches, pick the minimum cost, tie-break on the lowest id using `string.CompareOrdinal`
     - Add `TryNegotiateMeetingPoint(harvester, tractor, ctx, out meetingPoint)`: short-circuit to the harvester position when `Load == MaxLoad`; otherwise compute both cost fields once, scan cells in row-major order skipping `Blocked` and jointly unreachable cells, and take the strict minimum of the summed cost so the first (lowest `y`, then lowest `x`) minimum wins; report failure when no cell is jointly reachable
     - _Requirements: 10.1, 10.4, 10.5, 11.1, 11.2, 11.3, 11.4, 11.5, 15.4_
 
-  - [ ] 13.7 Implement the assistance mapping and its lifecycle
+  - [x] 13.7 Implement the assistance mapping and its lifecycle
     - Add the `_tractorToHarvester` / `_harvesterToTractor` dictionaries maintained as exact inverses, mutated only through private `LinkPair`/`UnlinkPair` which write or erase both sides together
     - Add `RequestAssistance(harvester, ctx, out tractor, out meetingPoint)` composing `ComputeCostField`, `TrySelectTractor` and `TryNegotiateMeetingPoint`, recording exactly one pair on success and leaving the mapping untouched on failure; on negotiation failure release any pre-existing pair
     - Add `ReleasePair`, `IsPaired`, `TryGetPartner`, and `AllInactive`
@@ -183,7 +183,7 @@ Conventions used throughout:
     - Add `ExecuteTick(ctx)` invoking each registered agent's `Execute` exactly once in registration order
     - _Requirements: 10.2, 10.3, 10.6, 10.7, 10.8, 15.4, 15.6, 16.1_
 
-  - [ ] 13.12 Verify coordination group
+  - [x] 13.12 Verify coordination group
     - Run `dotnet build HarvestingCore.sln`
     - _Requirements: 10.1, 11.1, 12.1_
 
