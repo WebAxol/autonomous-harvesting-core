@@ -25,4 +25,17 @@
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
 
+  <!--
+    This folder is a Unity UPM package root. Unity compiles every .cs file under a
+    package root, and obj/ holds generated sources (HarvestingCore.AssemblyInfo.cs,
+    .NETStandard,Version=v2.1.AssemblyAttributes.cs) that would collide with the
+    compiler-generated attributes and break the Unity build. Redirect all MSBuild
+    output to artifacts/ at the repo root so bin/ and obj/ never sit in the package
+    root. dotnet build behaviour is otherwise unchanged.
+  -->
+  <PropertyGroup>
+    <BaseOutputPath>$(MSBuildThisFileDirectory)../../artifacts/bin/</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)../../artifacts/obj/</BaseIntermediateOutputPath>
+  </PropertyGroup>
+
 </Project>

@@ -2,6 +2,9 @@
 bin/
 obj/
 
+## Redirected MSBuild output (src/HarvestingCore is a Unity UPM package root)
+artifacts/
+
 ## User-specific and IDE files
 *.user
 *.suo
