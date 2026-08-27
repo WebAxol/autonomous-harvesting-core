@@ -1,0 +1,7 @@
+{
+  "name": "com.agroagents.harvestingcore",
+  "version": "0.1.0",
+  "displayName": "Harvesting Core",
+  "description": "Engine-agnostic multi-agent harvesting simulation core.",
+  "unity": "6000.0"
+}
