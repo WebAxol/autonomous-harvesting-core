@@ -22,26 +22,60 @@ namespace HarvestingCore.Agents
                     && agent.Fuel <= reserve * ctx.Config.HarvesterFuelReserveMultiplier,
                 "8.4"),
 
-            // 2. HARVEST -> WAIT_TRACTOR: full load, wait in place.
+            // 2. HARVEST -> WAIT_TRACTOR: load reached MaxLoad, already paired and
+            //    at the meeting point (or meeting point is own position).
             new TransitionRule(StateId.Harvest, StateId.WaitTractor,
-                (agent, ctx) => agent.Load == agent.MaxLoad,
+                (agent, ctx) => agent.Load == agent.MaxLoad
+                    && ctx.Manager.IsPaired(agent)
+                    && agent.MeetingPoint.HasValue
+                    && agent.Position.Equals(agent.MeetingPoint.Value),
                 "8.8"),
 
             // 3. HARVEST -> GO_TO_MEETING_POINT: paired tractor with a rendezvous
-            //    that is not the harvester's own position (row 2 already handles
-            //    the full-load, meet-in-place case).
+            //    that is not the harvester's own current position.
             new TransitionRule(StateId.Harvest, StateId.GoToMeetingPoint,
-                (agent, ctx) => ctx.Manager.TryGetPartner(agent, out _)
+                (agent, ctx) => ctx.Manager.IsPaired(agent)
                     && agent.MeetingPoint.HasValue
                     && !agent.MeetingPoint.Value.Equals(agent.Position),
                 "8.6"),
 
-            // 4. HARVEST -> GO_TO_DUMP: carrying load and the dump is economically
-            //    preferable to the nearest available tractor.
+            // 4. HARVEST -> GO_TO_MEETING_POINT: load reached capacity threshold,
+            //    a tractor is available and closer (scaled by DumpPreferenceFactor)
+            //    than the nearest dump. RequestAssistance negotiates the meeting point.
+            new TransitionRule(StateId.Harvest, StateId.GoToMeetingPoint,
+                (agent, ctx) =>
+                {
+                    if (agent.Load < agent.MaxLoad * ctx.Config.CapacityFactor)
+                    {
+                        return false;
+                    }
+                    if (ctx.Manager.IsPaired(agent))
+                    {
+                        return false;
+                    }
+                    int tractorCost = CostToNearestAvailableTractor(agent, ctx);
+                    if (tractorCost == CostField.Unreachable)
+                    {
+                        return false;
+                    }
+                    if (ctx.Model.DumpSites.Count > 0
+                        && ctx.PathFinder.TryCostToNearest(agent.Position, ctx.Model.DumpSites, out _, out int dumpCost)
+                        && dumpCost < tractorCost * ctx.Config.DumpPreferenceFactor)
+                    {
+                        return false; // dump is cheaper — let rule 5 handle it
+                    }
+                    return ctx.Manager.RequestAssistance((Harvester)agent, ctx,
+                        out _, out _);
+                },
+                "8.6b"),
+
+            // 5. HARVEST -> GO_TO_DUMP: carrying load at or above capacity threshold
+            //    and dump is cheaper than calling a tractor.
             new TransitionRule(StateId.Harvest, StateId.GoToDump,
                 (agent, ctx) =>
                 {
-                    if (agent.Load <= 0 || ctx.Model.DumpSites.Count == 0)
+                    if (agent.Load < agent.MaxLoad * ctx.Config.CapacityFactor
+                        || ctx.Model.DumpSites.Count == 0)
                     {
                         return false;
                     }
@@ -52,58 +86,56 @@ namespace HarvestingCore.Agents
                     int tractorCost = CostToNearestAvailableTractor(agent, ctx);
                     if (tractorCost == CostField.Unreachable)
                     {
-                        return true;
+                        return true; // no tractor available, go to dump directly
                     }
                     return dumpCost < tractorCost * ctx.Config.DumpPreferenceFactor;
                 },
                 "8.10"),
 
-            // 5. HARVEST -> IDLE: nothing left to harvest in the owned area.
+            // 6. HARVEST -> IDLE: nothing left to harvest in the owned area.
             new TransitionRule(StateId.Harvest, StateId.Idle,
                 (agent, ctx) => ((Harvester)agent).IsAreaFinished(ctx),
                 "8.2"),
 
-            // 6. IDLE -> HARVEST: a crop cell is owned again.
+            // 7. IDLE -> HARVEST: a crop cell is owned again.
             new TransitionRule(StateId.Idle, StateId.Harvest,
                 (agent, ctx) => ((Harvester)agent).HasAssignedCrop(ctx),
                 "8.3"),
 
-            // 7. IDLE -> GO_TO_REFUEL: same fuel-reserve guard as row 1, evaluated
-            //    from IDLE.
+            // 8. IDLE -> GO_TO_REFUEL: same fuel-reserve guard as rule 1, from IDLE.
             new TransitionRule(StateId.Idle, StateId.GoToRefuel,
                 (agent, ctx) => ctx.Model.RefuelStations.Count > 0
                     && agent.TryEstimateFuelReserve(ctx, out int reserve)
                     && agent.Fuel <= reserve * ctx.Config.HarvesterFuelReserveMultiplier,
                 "8.4"),
 
-            // 8. GO_TO_REFUEL -> HARVEST: refuel completed this tick.
+            // 9. GO_TO_REFUEL -> HARVEST: refuel completed this tick.
             new TransitionRule(StateId.GoToRefuel, StateId.Harvest,
                 (agent, ctx) => agent.RefuelledThisTick,
                 "8.5"),
 
-            // 9. GO_TO_MEETING_POINT -> WAIT_TRACTOR: arrived at the rendezvous.
+            // 10. GO_TO_MEETING_POINT -> WAIT_TRACTOR: arrived at the rendezvous.
             new TransitionRule(StateId.GoToMeetingPoint, StateId.WaitTractor,
                 (agent, ctx) => agent.MeetingPoint.HasValue && agent.Position.Equals(agent.MeetingPoint.Value),
                 "8.7"),
 
-            // 10. GO_TO_MEETING_POINT -> IDLE: pair lost or the meeting point is
-            //     unreachable (path exhausted without arriving).
+            // 11. GO_TO_MEETING_POINT -> IDLE: pair lost or meeting point unreachable.
             new TransitionRule(StateId.GoToMeetingPoint, StateId.Idle,
                 (agent, ctx) => agent.Path.Count == 0
                     && (!agent.MeetingPoint.HasValue || !agent.Position.Equals(agent.MeetingPoint.Value)),
                 "11.3"),
 
-            // 11. WAIT_TRACTOR -> HARVEST: load transferred to the tractor.
+            // 12. WAIT_TRACTOR -> HARVEST: load transferred to the tractor.
             new TransitionRule(StateId.WaitTractor, StateId.Harvest,
                 (agent, ctx) => agent.TransferCompletedThisTick,
                 "8.9"),
 
-            // 12. WAIT_TRACTOR -> IDLE: partner went inactive, no pair remains.
+            // 13. WAIT_TRACTOR -> IDLE: partner went inactive, no pair remains.
             new TransitionRule(StateId.WaitTractor, StateId.Idle,
                 (agent, ctx) => !ctx.Manager.IsPaired(agent),
                 "10.7"),
 
-            // 13. GO_TO_DUMP -> HARVEST: dump completed this tick.
+            // 14. GO_TO_DUMP -> HARVEST: dump completed this tick.
             new TransitionRule(StateId.GoToDump, StateId.Harvest,
                 (agent, ctx) => agent.DumpedThisTick,
                 "8.11"),
