@@ -93,7 +93,7 @@ namespace HarvestingCore.Pathfinding
 
             if (origin.Equals(target))
             {
-                return new List<GridPosition> { origin };
+                return Array.Empty<GridPosition>();
             }
 
             int targetIndex = _model.IndexOf(target);
@@ -255,7 +255,7 @@ namespace HarvestingCore.Pathfinding
         }
 
         /// <summary>Walks the predecessor chain from targetIndex and reverses it, so
-        /// element 0 is the origin of the most recent RunSearch call.</summary>
+        /// element 0 is the first step away from the origin of the most recent RunSearch call.</summary>
         private List<GridPosition> Reconstruct(int targetIndex)
         {
             var result = new List<GridPosition>();
@@ -266,6 +266,11 @@ namespace HarvestingCore.Pathfinding
                 current = _predecessors[current];
             }
             result.Reverse();
+            // Drop the origin (index 0) — the agent is already there.
+            if (result.Count > 0)
+            {
+                result.RemoveAt(0);
+            }
             return result;
         }
 
