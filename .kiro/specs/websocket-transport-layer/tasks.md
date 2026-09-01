@@ -29,21 +29,21 @@ Implement `HarvestingCore.Transport` as a new `net8.0` project alongside the exi
   - Create internal inbound types `TickRequest` and `StateRequest` and outbound types `TickResponse`, `StateResponse`, `ErrorResponse` with correct `type` string values and `[JsonPropertyName]` attributes matching Req 5.3–5.7
   - _Requirements: 5.3, 5.4, 5.5, 5.6, 5.7, 6.2_
 
-- [ ] 4. Implement `MessageDispatcher`
-  - [ ] 4.1 Create `MessageDispatcher.cs`; deserialise the `type` field via `JsonDocument`; route to `HandleTickRequestAsync`, `HandleStateRequestAsync`, or return an `unknown_type` ErrorResponse (Req 5.2)
+- [x] 4. Implement `MessageDispatcher`
+  - [x] 4.1 Create `MessageDispatcher.cs`; deserialise the `type` field via `JsonDocument`; route to `HandleTickRequestAsync`, `HandleStateRequestAsync`, or return an `unknown_type` ErrorResponse (Req 5.2)
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 4.1, 4.3, 5.2_
 
-  - [ ] 4.2 Implement `HandleTickRequestAsync`: validate `count ≥ 1` (return `invalid_count` on failure), check `IsHalted` (return `simulation_halted`), acquire `SemaphoreSlim(1,1)` tick lock, call `TickAsync` in a loop `count` times, send a `TickResponse` after each tick; catch exceptions and return `tick_error`
+  - [x] 4.2 Implement `HandleTickRequestAsync`: validate `count ≥ 1` (return `invalid_count` on failure), check `IsHalted` (return `simulation_halted`), acquire `SemaphoreSlim(1,1)` tick lock, call `TickAsync` in a loop `count` times, send a `TickResponse` after each tick; catch exceptions and return `tick_error`
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 8.1, 8.2, 8.4_
 
-  - [ ] 4.3 Implement `HandleStateRequestAsync`: call `GetSnapshot()` without acquiring the tick lock; catch exceptions and return `snapshot_error`
+  - [x] 4.3 Implement `HandleStateRequestAsync`: call `GetSnapshot()` without acquiring the tick lock; catch exceptions and return `snapshot_error`
     - _Requirements: 4.1, 4.3, 8.3_
 
-  - [ ]* 4.4 Write property test for tick-lock serialisation (Property 2: at-most-one-tick-at-a-time)
+  - [x] 4.4 Write property test for tick-lock serialisation (Property 2: at-most-one-tick-at-a-time)
     - **Property 2: When N concurrent `HandleTickRequestAsync` calls (count=1) are issued, `ISimulationHost.TickAsync` is never called more than once simultaneously**
     - **Validates: Requirements 8.1, 8.4**
 
-  - [ ]* 4.5 Write unit tests for `MessageDispatcher`
+  - [x] 4.5 Write unit tests for `MessageDispatcher`
     - Test `unknown_type`, `invalid_count`, `simulation_halted`, `tick_error`, `snapshot_error` error paths; test happy-path tick and state responses
     - _Requirements: 3.3, 3.4, 3.5, 4.3, 5.2_
 
