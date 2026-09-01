@@ -24,7 +24,7 @@ Implement `HarvestingCore.Transport` as a new `net8.0` project alongside the exi
     - Test UTF-8 encoding, camelCase field names, malformed JSON returning a descriptive error
     - _Requirements: 5.1, 7.4_
 
-- [ ] 3. Define `ISimulationHost` and inbound/outbound message types
+- [x] 3. Define `ISimulationHost` and inbound/outbound message types
   - Create `ISimulationHost.cs` declaring `bool IsHalted`, `Task TickAsync(CancellationToken ct)`, `SimulationSnapshot GetSnapshot()`
   - Create internal inbound types `TickRequest` and `StateRequest` and outbound types `TickResponse`, `StateResponse`, `ErrorResponse` with correct `type` string values and `[JsonPropertyName]` attributes matching Req 5.3–5.7
   - _Requirements: 5.3, 5.4, 5.5, 5.6, 5.7, 6.2_
