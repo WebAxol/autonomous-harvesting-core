@@ -50,35 +50,35 @@ Implement `HarvestingCore.Transport` as a new `net8.0` project alongside the exi
 - [ ] 5. Checkpoint — Ensure all tests pass
   - Ensure all tests pass; ask the user if questions arise.
 
-- [ ] 6. Implement `ClientHandler`
-  - [ ] 6.1 Create `ClientHandler.cs`; implement `RunAsync(CancellationToken serverCt)`: read frames in a loop (8 KB segments joined into a `MemoryStream`), pass UTF-8 text payload to `MessageDispatcher.HandleAsync`, write the response bytes back through the `WebSocket`
+- [-] 6. Implement `ClientHandler`
+  - [x] 6.1 Create `ClientHandler.cs`; implement `RunAsync(CancellationToken serverCt)`: read frames in a loop (8 KB segments joined into a `MemoryStream`), pass UTF-8 text payload to `MessageDispatcher.HandleAsync`, write the response bytes back through the `WebSocket`
     - _Requirements: 2.1, 2.2, 2.3_
 
-  - [ ] 6.2 Handle `WebSocketState.CloseReceived` and unexpected disconnects: perform the closing handshake, remove itself from the server's active-connection map, and release resources without affecting other active connections
+  - [x] 6.2 Handle `WebSocketState.CloseReceived` and unexpected disconnects: perform the closing handshake, remove itself from the server's active-connection map, and release resources without affecting other active connections
     - _Requirements: 2.2, 2.3_
 
-  - [ ]* 6.3 Write unit tests for `ClientHandler`
+  - [x] 6.3 Write unit tests for `ClientHandler`
     - Test normal close, unexpected disconnect, and message-passthrough to `MessageDispatcher` using a mock/fake `WebSocket`
     - _Requirements: 2.2, 2.3_
 
-- [ ] 7. Implement `TransportServer`
-  - [ ] 7.1 Create `TransportServer.cs` implementing `IAsyncDisposable`; accept `int port` and `ISimulationHost host` in the constructor; maintain a `ConcurrentDictionary<Guid, ClientHandler>` of active connections
+- [-] 7. Implement `TransportServer`
+  - [x] 7.1 Create `TransportServer.cs` implementing `IAsyncDisposable`; accept `int port` and `ISimulationHost host` in the constructor; maintain a `ConcurrentDictionary<Guid, ClientHandler>` of active connections
     - _Requirements: 1.1, 1.6, 2.4_
 
-  - [ ] 7.2 Implement `StartAsync`: validate not-already-running (throw `InvalidOperationException` if so), start `HttpListener` on the configured port (let socket exceptions propagate), launch the accept loop that upgrades HTTP connections to WebSocket, spawns a `ClientHandler` task per connection, and rejects new connections with 503 when stopped
+  - [x] 7.2 Implement `StartAsync`: validate not-already-running (throw `InvalidOperationException` if so), start `HttpListener` on the configured port (let socket exceptions propagate), launch the accept loop that upgrades HTTP connections to WebSocket, spawns a `ClientHandler` task per connection, and rejects new connections with 503 when stopped
     - _Requirements: 1.2, 1.4, 1.5, 2.1, 2.5_
 
-  - [ ] 7.3 Implement `StopAsync`: cancel the `CancellationTokenSource`, close the `HttpListener`, send WebSocket close code 1001 to each active connection, and await all `ClientHandler` tasks
+  - [x] 7.3 Implement `StopAsync`: cancel the `CancellationTokenSource`, close the `HttpListener`, send WebSocket close code 1001 to each active connection, and await all `ClientHandler` tasks
     - _Requirements: 1.3, 2.2_
-
-  - [ ] 7.4 Implement `DisposeAsync`: call `StopAsync` when not already stopped
+s
+  - [x] 7.4 Implement `DisposeAsync`: call `StopAsync` when not already stopped
     - _Requirements: 1.6_
 
-  - [ ]* 7.5 Write property test for connection-count bound (Property 3: concurrent connections)
+  - [ ] 7.5 Write property test for connection-count bound (Property 3: concurrent connections)
     - **Property 3: For any N ∈ [1, 10], a `TransportServer` accepts and independently handles N simultaneous WebSocket connections**
     - **Validates: Requirements 2.4**
 
-  - [ ]* 7.6 Write integration tests for `TransportServer`
+  - [ ] 7.6 Write integration tests for `TransportServer`
     - Test start/stop lifecycle, duplicate `StartAsync` exception, 503 rejection when stopped, and clean shutdown with close-code 1001
     - _Requirements: 1.2, 1.3, 1.4, 1.5, 2.5_
 
