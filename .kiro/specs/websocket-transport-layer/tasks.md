@@ -74,15 +74,15 @@ s
   - [x] 7.4 Implement `DisposeAsync`: call `StopAsync` when not already stopped
     - _Requirements: 1.6_
 
-  - [ ] 7.5 Write property test for connection-count bound (Property 3: concurrent connections)
+  - [x] 7.5 Write property test for connection-count bound (Property 3: concurrent connections)
     - **Property 3: For any N ∈ [1, 10], a `TransportServer` accepts and independently handles N simultaneous WebSocket connections**
     - **Validates: Requirements 2.4**
 
-  - [ ] 7.6 Write integration tests for `TransportServer`
+  - [x] 7.6 Write integration tests for `TransportServer`
     - Test start/stop lifecycle, duplicate `StartAsync` exception, 503 rejection when stopped, and clean shutdown with close-code 1001
     - _Requirements: 1.2, 1.3, 1.4, 1.5, 2.5_
 
-- [ ] 8. Create test project and wire everything together
+- [x] 8. Create test project and wire everything together
   - Create `tests/HarvestingCore.Transport.Tests/HarvestingCore.Transport.Tests.csproj` with references to `HarvestingCore.Transport`, `Microsoft.NET.Test.Sdk`, `xunit` (or NUnit), and `FsCheck` (or `CsCheck`) for property-based tests
   - Ensure all test files from tasks 2, 4, 6, and 7 compile and run against the final implementation
   - _Requirements: 1.1–1.6, 2.1–2.5, 3.1–3.6, 4.1–4.3, 5.1–5.10, 6.1–6.4, 7.1–7.4, 8.1–8.4_
