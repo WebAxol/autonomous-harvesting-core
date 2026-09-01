@@ -6,21 +6,21 @@ Implement `HarvestingCore.Transport` as a new `net8.0` project alongside the exi
 
 ## Tasks
 
-- [ ] 1. Create the `HarvestingCore.Transport` project and DTO types
+- [x] 1. Create the `HarvestingCore.Transport` project and DTO types
   - Create `src/HarvestingCore.Transport/HarvestingCore.Transport.csproj` targeting `net8.0` with a `<ProjectReference>` to `HarvestingCore`; no third-party `PackageReference` items
   - Add the project to `HarvestingCore.sln`
   - Create `Dto/SimulationSnapshot.cs`, `Dto/AgentSnapshot.cs`, `Dto/CellSnapshot.cs` with `[JsonPropertyName]` attributes matching the schema in Req 5.8–5.10
   - _Requirements: 5.8, 5.9, 5.10, 6.3_
 
-- [ ] 2. Implement `SnapshotSerializer` and JSON round-trip
-  - [ ] 2.1 Create `SnapshotSerializer.cs` with a cached `JsonSerializerOptions` (camelCase policy), `Serialize(object message) → byte[]`, and `Deserialize(string json) → SimulationSnapshot`; handle malformed input without throwing unhandled exceptions
+- [x] 2. Implement `SnapshotSerializer` and JSON round-trip
+  - [x] 2.1 Create `SnapshotSerializer.cs` with a cached `JsonSerializerOptions` (camelCase policy), `Serialize(object message) → byte[]`, and `Deserialize(string json) → SimulationSnapshot`; handle malformed input without throwing unhandled exceptions
     - _Requirements: 5.1, 7.1, 7.2, 7.4_
 
-  - [ ] 2.2 Write property test for JSON round-trip (Property 1: round-trip consistency)
+  - [x] 2.2 Write property test for JSON round-trip (Property 1: round-trip consistency)
     - **Property 1: For all structurally valid `SimulationSnapshot` instances, `Deserialize(Serialize(snapshot))` produces an object structurally equal to the original**
     - **Validates: Requirements 7.3**
 
-  - [ ] 2.3 Write unit tests for `SnapshotSerializer`
+  - [x] 2.3 Write unit tests for `SnapshotSerializer`
     - Test UTF-8 encoding, camelCase field names, malformed JSON returning a descriptive error
     - _Requirements: 5.1, 7.4_
 
