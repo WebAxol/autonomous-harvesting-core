@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <!-- Suppress Unity-specific attributes that aren't available outside Unity -->
+    <DefineConstants>DOTNET_TEST</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
+    <PackageReference Include="xunit" Version="2.9.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="FsCheck.Xunit" Version="2.16.6" />
+  </ItemGroup>
+
+  <!-- Shared compile items from the Unity project — no Unity process required -->
+  <ItemGroup>
+    <Compile Include="../../../AgroAgents-RetoJohnDeere/Assets/Scripts/Adapters/WebSocket/ServerMessage.cs" />
+    <Compile Include="../../../AgroAgents-RetoJohnDeere/Assets/Scripts/Adapters/WebSocket/WebSocketMessageParser.cs" />
+  </ItemGroup>
+</Project>
