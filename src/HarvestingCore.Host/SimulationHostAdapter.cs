@@ -46,6 +46,10 @@ namespace HarvestingCore.Host
                     Y = agent.Position.Y,
                     Fuel = agent.Fuel,
                     Load = agent.Load,
+                    MaxLoad = agent.MaxLoad,
+                    PathInvalidatedThisTick = agent.PathInvalidatedThisTick,
+                    MeetingPointX = agent.MeetingPoint?.X,
+                    MeetingPointY = agent.MeetingPoint?.Y,
                 });
             }
 
