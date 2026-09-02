@@ -31,5 +31,17 @@ namespace HarvestingCore.Transport.Dto
 
         [JsonPropertyName("load")]
         public int Load { get; set; }
+
+        [JsonPropertyName("maxLoad")]
+        public int MaxLoad { get; set; }
+
+        [JsonPropertyName("pathInvalidatedThisTick")]
+        public bool PathInvalidatedThisTick { get; set; }
+
+        [JsonPropertyName("meetingPointX")]
+        public int? MeetingPointX { get; set; }
+
+        [JsonPropertyName("meetingPointY")]
+        public int? MeetingPointY { get; set; }
     }
 }
