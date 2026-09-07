@@ -1,5 +1,6 @@
 using HarvestingCore.Configuration;
 using HarvestingCore.World;
+using HarvestingCore.Pathfinding;
 
 namespace HarvestingCore.Agents
 {
@@ -15,6 +16,16 @@ namespace HarvestingCore.Agents
 
         /// <summary>Null when unpaired.</summary>
         public string AssignedHarvesterId { get; internal set; }
+
+        internal int NavigationStepCost(Cell cell, SimulationConfig config)
+        {
+            if (cell.State == CellState.Blocked || cell.State == CellState.Crop)
+            {
+                return CostField.Unreachable;
+            }
+
+            return config.TerrainCost(cell.State) + cell.Popularity;
+        }
 
         public Tractor(string id, GridPosition start, WorldModel model, SimulationConfig config,
             int? maxLoad = null, int? maxFuel = null, int? fuelConsumption = null)

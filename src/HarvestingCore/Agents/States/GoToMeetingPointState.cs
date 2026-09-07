@@ -11,7 +11,16 @@ namespace HarvestingCore.Agents.States
         {
             if (agent.MeetingPoint.HasValue)
             {
-                var path = context.PathFinder.PathToCell(agent.Position, agent.MeetingPoint.Value);
+                var path = agent is Tractor tractor
+                    ? context.PathFinder.PathToCell(
+                        agent.Position,
+                        agent.MeetingPoint.Value,
+                        stepCostOverride: cell =>
+                            tractor.NavigationStepCost(cell, context.Config))
+                    : context.PathFinder.PathToCell(
+                        agent.Position,
+                        agent.MeetingPoint.Value);
+
                 agent.SetPath(path);
             }
         }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using HarvestingCore.World;
+using System;
 
 namespace HarvestingCore.Agents.States
 {
@@ -13,10 +14,26 @@ namespace HarvestingCore.Agents.States
 
         public override void OnEnter(Agent agent, AgentContext context)
         {
-            if (context.PathFinder.TryCostToNearest(agent.Position, context.Model.DumpSites,
-                out GridPosition nearest, out _))
+            Func<Cell, int> stepCost = null;
+
+            if (agent is Tractor tractor)
             {
-                var path = context.PathFinder.PathToCell(agent.Position, nearest);
+                stepCost = cell =>
+                    tractor.NavigationStepCost(cell, context.Config);
+            }
+
+            if (context.PathFinder.TryCostToNearest(
+                agent.Position,
+                context.Model.DumpSites,
+                out GridPosition nearest,
+                out _,
+                stepCost))
+            {
+                var path = context.PathFinder.PathToCell(
+                    agent.Position,
+                    nearest,
+                    stepCostOverride: stepCost);
+
                 agent.SetPath(path);
             }
         }

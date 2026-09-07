@@ -188,15 +188,17 @@ namespace HarvestingCore.Coordination
             }
 
             CostField harvesterField = ctx.PathFinder.ComputeCostField(harvester.Position);
-            CostField tractorField = ctx.PathFinder.ComputeCostField(tractor.Position);
-
+            CostField tractorField =
+                ctx.PathFinder.ComputeCostField(
+                    tractor.Position,
+                    cell => tractor.NavigationStepCost(cell, ctx.Config));
             IReadOnlyList<Cell> cells = ctx.Model.Cells;
             int bestIndex = -1;
             int bestCombined = int.MaxValue;
 
             for (int i = 0; i < cells.Count; i++)
             {
-                if (cells[i].State == CellState.Blocked)
+                if (tractor.NavigationStepCost(cells[i], ctx.Config) == CostField.Unreachable)
                 {
                     continue;
                 }

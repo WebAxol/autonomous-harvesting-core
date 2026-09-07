@@ -84,7 +84,10 @@ namespace HarvestingCore.Pathfinding
         /// returns an empty path for out-of-bounds, Blocked, or unreachable targets.
         /// </summary>
         public IReadOnlyList<GridPosition> PathToCell(
-            GridPosition origin, GridPosition target, HeuristicKind? heuristicOverride = null)
+            GridPosition origin,
+            GridPosition target,
+            HeuristicKind? heuristicOverride = null,
+            Func<Cell, int> stepCostOverride = null)
         {
             if (!_model.InBounds(origin) || !_model.InBounds(target))
             {
@@ -97,13 +100,17 @@ namespace HarvestingCore.Pathfinding
             }
 
             int targetIndex = _model.IndexOf(target);
-            if (_model.Cells[targetIndex].State == CellState.Blocked)
+            if (StepCostInto(target, stepCostOverride) == CostField.Unreachable)
             {
                 return Array.Empty<GridPosition>();
             }
 
             Func<GridPosition, int> heuristic = BuildHeuristic(heuristicOverride ?? _config.Heuristic, target);
-            int foundIndex = RunSearch(origin, index => index == targetIndex, heuristic);
+            int foundIndex = RunSearch(
+                origin,
+                index => index == targetIndex,
+                heuristic,
+                stepCostOverride);
 
             if (foundIndex == -1)
             {
@@ -113,21 +120,23 @@ namespace HarvestingCore.Pathfinding
         }
 
         /// <summary>Full Dijkstra cost field, no early termination.</summary>
-        public CostField ComputeCostField(GridPosition origin)
+        public CostField ComputeCostField(
+                GridPosition origin,
+                Func<Cell, int> stepCostOverride = null)
         {
             if (!_model.InBounds(origin))
             {
                 throw new ArgumentOutOfRangeException(nameof(origin), "origin is out of bounds.");
             }
 
-            RunSearch(origin, index => false, null);
+            RunSearch(origin, index => false, null, stepCostOverride); RunSearch(origin, index => false, null);
 
             return new CostField(_model.Width, _model.Height, origin, SnapshotCosts(), SnapshotPredecessors());
         }
 
         /// <summary>Cost of the cheapest path to the nearest member of targets.</summary>
         public bool TryCostToNearest(GridPosition origin, IReadOnlyList<GridPosition> targets,
-            out GridPosition best, out int cost)
+            out GridPosition best, out int cost, Func<Cell, int> stepCostOverride = null)
         {
             best = default;
             cost = CostField.Unreachable;
@@ -137,7 +146,7 @@ namespace HarvestingCore.Pathfinding
                 return false;
             }
 
-            CostField field = ComputeCostField(origin);
+            CostField field = ComputeCostField(origin, stepCostOverride);
             bool found = false;
 
             for (int i = 0; i < targets.Count; i++)
@@ -167,13 +176,22 @@ namespace HarvestingCore.Pathfinding
         }
 
         /// <summary>Terrain cost of entering position; the Unreachable sentinel for Blocked.</summary>
-        internal int StepCostInto(GridPosition position)
+        internal int StepCostInto(
+            GridPosition position,
+            Func<Cell, int> stepCostOverride = null)
         {
             Cell cell = _model.CellAt(position);
+
+            if (stepCostOverride != null)
+            {
+                return stepCostOverride(cell);
+            }
+
             if (cell.State == CellState.Blocked)
             {
                 return CostField.Unreachable;
             }
+
             return _config.TerrainCost(cell.State);
         }
 
@@ -183,7 +201,11 @@ namespace HarvestingCore.Pathfinding
         /// skipping out-of-bounds and Blocked, relax on strict improvement. Returns
         /// the terminal cell index, or -1 when the heap empties without matching.
         /// </summary>
-        private int RunSearch(GridPosition origin, Func<int, bool> isTerminal, Func<GridPosition, int> heuristic)
+        private int RunSearch(
+            GridPosition origin,
+            Func<int, bool> isTerminal,
+            Func<GridPosition, int> heuristic,
+            Func<Cell, int> stepCostOverride = null)
         {
             _version++;
             _heap.Clear();
@@ -232,7 +254,9 @@ namespace HarvestingCore.Pathfinding
                         continue;
                     }
 
-                    int stepCost = StepCostInto(neighbourPosition);
+                    int stepCost = StepCostInto(
+                        neighbourPosition,
+                        stepCostOverride);
                     if (stepCost == CostField.Unreachable)
                     {
                         continue;   // Blocked
