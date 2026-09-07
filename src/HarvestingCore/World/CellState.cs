@@ -8,6 +8,7 @@ namespace HarvestingCore.World
         Empty = 0,
         Crop = 1,
         Blocked = 2,
-        Harvested = 3
+        Harvested = 3,
+        Loaded = 4
     }
 }

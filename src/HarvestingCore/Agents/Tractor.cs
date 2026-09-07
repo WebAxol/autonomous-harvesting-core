@@ -16,6 +16,8 @@ namespace HarvestingCore.Agents
         /// <summary>Null when unpaired.</summary>
         public string AssignedHarvesterId { get; internal set; }
 
+        public GridPosition? AssignedLoadedCell { get; internal set; }
+
         public Tractor(string id, GridPosition start, WorldModel model, SimulationConfig config,
             int? maxLoad = null, int? maxFuel = null, int? fuelConsumption = null)
             : base(id, start, model, config, maxLoad, maxFuel, fuelConsumption)

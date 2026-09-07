@@ -31,6 +31,29 @@ namespace HarvestingCore.World
         }
 
         /// <summary>Empty|Harvested -> Crop (Req 2.3, 2.4).</summary>
+        public bool MarkLoaded()
+        {
+            if (State != CellState.Harvested)
+            {
+                return false;
+            }
+
+            State = CellState.Loaded;
+            return true;
+        }
+
+        public bool CollectLoad()
+        {
+            if(State != CellState.Loaded)
+            {
+                return false;
+            }
+
+            State = CellState.Harvested;
+            return true;
+        }
+
+
         public bool Plant()
         {
             if (State != CellState.Empty && State != CellState.Harvested)

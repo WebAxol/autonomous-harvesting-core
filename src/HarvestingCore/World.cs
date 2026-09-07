@@ -97,6 +97,7 @@ namespace HarvestingCore
             // transfer this tick (Req 10.7, 10.8, 16.2).
             Manager.ResolveAssistanceCleanup(_pending, ctx);
             Manager.ResolveTransfers(_pending, ctx);
+            Manager.AssignLoadedCells(ctx);
 
             // Phase 3: redistribution runs at most once, only when requested
             // (Req 12.6, 12.7).
