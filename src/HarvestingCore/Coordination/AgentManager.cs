@@ -148,6 +148,12 @@ namespace HarvestingCore.Coordination
                 {
                     continue;
                 }
+
+                if (IsPaired(candidate))
+                {
+                    continue;
+                }
+
                 if (_tractorToHarvester.ContainsKey(candidate.Id))
                 {
                     continue;
@@ -367,6 +373,80 @@ namespace HarvestingCore.Coordination
 
         /// <summary>Req 16.1: invokes each registered agent's Execute exactly once, in
         /// registration order.</summary>
+        public void AssignLoadedCells(AgentContext ctx)
+        {
+            IReadOnlyList<Cell> cells = ctx.Model.Cells;
+
+            for (int i = 0; i < cells.Count; i++)
+            {
+                if (cells[i].State != CellState.Loaded)
+                {
+                    continue;
+                }
+
+                GridPosition target = ctx.Model.PositionOf(i);
+
+                bool alreadyAssigned = false;
+
+                for (int j = 0; j < _tractors.Count; j++)
+                {
+                    if (_tractors[j].AssignedLoadedCell.HasValue &&
+                        _tractors[j].AssignedLoadedCell.Value.Equals(target))
+                    {
+                        alreadyAssigned = true;
+                        break;
+                    }
+                }
+
+                if (alreadyAssigned)
+                {
+                    continue;
+                }
+
+                CostField field = ctx.PathFinder.ComputeCostField(target);
+
+                Tractor best = null;
+                int bestCost = CostField.Unreachable;
+
+                for (int j = 0; j < _tractors.Count; j++)
+                {
+                    Tractor candidate = _tractors[j];
+
+                    if (candidate.CurrentState != StateId.Idle)
+                    {
+                        continue;
+                    }
+
+                    if (candidate.AssignedLoadedCell.HasValue)
+                    {
+                        continue;
+                    }
+
+                    int candidateIndex =
+                        field.Width * candidate.Position.Y + candidate.Position.X;
+
+                    if (!field.IsReachable(candidateIndex))
+                    {
+                        continue;
+                    }
+
+                    int cost = field.CostAt(candidateIndex);
+
+                    if (best == null || cost <bestCost)
+                    {
+                        best = candidate;
+                        bestCost = cost;
+                    }
+                }
+
+                if (best != null)
+                {
+                    best.AssignedLoadedCell = target;
+                    best.MeetingPoint = target;
+                }
+            }
+        }
+
         public void ExecuteTick(AgentContext ctx)
         {
             for (int i = 0; i < _agents.Count; i++)

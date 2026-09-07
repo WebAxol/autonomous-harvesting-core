@@ -39,6 +39,12 @@ namespace HarvestingCore.Agents
             }
 
             SetLoad(Load + 1);
+            if (Load == MaxLoad)
+            {
+                cell.MarkLoaded();
+                SetLoad(0);
+            }
+
             return true;
         }
 

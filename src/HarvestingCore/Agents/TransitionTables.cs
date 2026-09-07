@@ -152,8 +152,21 @@ namespace HarvestingCore.Agents
 
             // 2. IDLE -> GO_TO_MEETING_POINT: a harvester assignment is in place.
             new TransitionRule(StateId.Idle, StateId.GoToMeetingPoint,
-                (agent, ctx) => ((Tractor)agent).AssignedHarvesterId != null && agent.MeetingPoint.HasValue,
+                (agent, ctx) =>
+                {
+                    Tractor tractor = (Tractor)agent;
+                    return agent.MeetingPoint.HasValue &&
+                        (
+                            tractor.AssignedHarvesterId != null ||
+                            (
+                                tractor.AssignedLoadedCell.HasValue &&
+                                !agent.Position.Equals(tractor.AssignedLoadedCell.Value)
+                            )
+                        );
+
+                },
                 "9.4"),
+
 
             // 3. IDLE -> GO_TO_DUMP: still carrying enough load to warrant a dump run.
             new TransitionRule(StateId.Idle, StateId.GoToDump,
@@ -166,14 +179,27 @@ namespace HarvestingCore.Agents
                 (agent, ctx) => agent.RefuelledThisTick,
                 "9.3"),
 
+            //(NEW) 5. GO_TO_MEETING_POINT -> IDLE: arrived at the assigned loaded-cell target.
+            new TransitionRule(StateId.GoToMeetingPoint, StateId.Idle,
+                (agent, ctx) => 
+                    ((Tractor)agent).AssignedLoadedCell.HasValue &&
+                    agent.Position.Equals(((Tractor)agent).AssignedLoadedCell.Value),
+                "loaded-arrival"),
+
             // 5. GO_TO_MEETING_POINT -> WAIT_HARVESTER: arrived at the rendezvous.
             new TransitionRule(StateId.GoToMeetingPoint, StateId.WaitHarvester,
                 (agent, ctx) => agent.MeetingPoint.HasValue && agent.Position.Equals(agent.MeetingPoint.Value),
                 "9.5"),
 
-            // 6. GO_TO_MEETING_POINT -> IDLE: partner lost mid-transit.
+            // 6. GO_TO_MEETING_POINT -> IDLE: partner lost and no loaded-cell assignment remains.
             new TransitionRule(StateId.GoToMeetingPoint, StateId.Idle,
-                (agent, ctx) => ((Tractor)agent).AssignedHarvesterId == null,
+                (agent, ctx) =>
+                {
+                    Tractor tractor = (Tractor)agent;
+
+                    return tractor.AssignedHarvesterId == null &&
+                           !tractor.AssignedLoadedCell.HasValue;
+                },
                 "10.7"),
 
             // 7. WAIT_HARVESTER -> GO_TO_DUMP: transfer completed and the load

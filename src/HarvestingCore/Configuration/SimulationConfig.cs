@@ -127,6 +127,8 @@ namespace HarvestingCore.Configuration
                     return EmptyCost;
                 case CellState.Harvested:
                     return HarvestedCost;
+                case CellState.Loaded:
+                    return HarvestedCost;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(state), "Blocked cells have no terrain cost.");
             }

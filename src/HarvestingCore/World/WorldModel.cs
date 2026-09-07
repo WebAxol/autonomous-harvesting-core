@@ -207,6 +207,7 @@ namespace HarvestingCore.World
                 case CellState.Crop: return 'W';
                 case CellState.Blocked: return '#';
                 case CellState.Harvested: return '_';
+                case CellState.Loaded: return 'L';
                 default: throw new ArgumentOutOfRangeException(nameof(state));
             }
         }
@@ -219,6 +220,7 @@ namespace HarvestingCore.World
                 case 'W': return CellState.Crop;
                 case '#': return CellState.Blocked;
                 case '_': return CellState.Harvested;
+                case 'L': return CellState.Loaded;
                 default:
                     throw new ArgumentException("Unrecognised cell character '" + c + "'.", nameof(c));
             }
