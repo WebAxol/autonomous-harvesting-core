@@ -36,10 +36,45 @@ namespace HarvestingCore.Transport
 
             return type switch
             {
+                "init_request"  => HandleInitRequest(payload),
                 "tick_request"  => await HandleTickRequestAsync(payload, sendAsync, ct),
                 "state_request" => await HandleStateRequestAsync(ct),
                 _               => SerializeError("unknown_type", "The 'type' field is absent or unrecognised.")
             };
+        }
+
+        // ── Init request handler ────────────────────────────────────────────────
+
+        /// <summary>
+        /// Builds the simulation world from the client-authored payload, then returns
+        /// a state_response with the freshly built snapshot. The client is the sole
+        /// author of the world; the server holds no world until this arrives.
+        /// </summary>
+        private byte[] HandleInitRequest(ReadOnlyMemory<byte> payload)
+        {
+            InitRequest request;
+            try
+            {
+                request = JsonSerializer.Deserialize<InitRequest>(payload.Span)
+                    ?? throw new JsonException("Null result after deserialization.");
+            }
+            catch (JsonException ex)
+            {
+                return SerializeError("invalid_init", $"Could not parse init_request: {ex.Message}");
+            }
+
+            if (!_host.Initialize(request, out string? error))
+            {
+                return SerializeError("init_failed", error ?? "World initialisation failed.");
+            }
+
+            SimulationSnapshot snapshot = _host.GetSnapshot();
+            var stateResponse = new StateResponse
+            {
+                Tick = snapshot.Tick,
+                Snapshot = snapshot,
+            };
+            return SnapshotSerializer.Serialize(stateResponse);
         }
 
         // ── Type discriminator ──────────────────────────────────────────────────
@@ -97,6 +132,12 @@ namespace HarvestingCore.Transport
             if (request.Count < 1)
             {
                 return SerializeError("invalid_count", $"'count' must be >= 1, got {request.Count}.");
+            }
+
+            // The client authors the world; refuse ticks until an init_request has built it.
+            if (!_host.IsInitialized)
+            {
+                return SerializeError("not_initialized", "The simulation has not been initialised. Send an init_request first.");
             }
 
             // Req 3.4: refuse if simulation is already halted
@@ -164,6 +205,12 @@ namespace HarvestingCore.Transport
         /// </summary>
         private Task<byte[]> HandleStateRequestAsync(CancellationToken ct)
         {
+            if (!_host.IsInitialized)
+            {
+                return Task.FromResult(SerializeError(
+                    "not_initialized", "The simulation has not been initialised. Send an init_request first."));
+            }
+
             try
             {
                 SimulationSnapshot snapshot = _host.GetSnapshot();

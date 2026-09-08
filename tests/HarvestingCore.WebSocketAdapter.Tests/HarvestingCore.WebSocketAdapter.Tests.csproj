@@ -18,9 +18,21 @@
     <PackageReference Include="FsCheck.Xunit" Version="2.16.6" />
   </ItemGroup>
 
-  <!-- Shared compile items from the Unity project — no Unity process required -->
+  <!-- Reference the Transport DTOs so we can prove the client's init_request
+       payload deserializes into the server's InitRequest wire shape. -->
+  <ItemGroup>
+    <ProjectReference Include="../../src/HarvestingCore.Transport/HarvestingCore.Transport.csproj" />
+  </ItemGroup>
+
+  <!-- Shared compile items from the Unity project — no Unity process required.
+       Unity-free port types + the client-side init_request serializer. -->
   <ItemGroup>
     <Compile Include="../../../AgroAgents-RetoJohnDeere/Assets/Scripts/Adapters/WebSocket/ServerMessage.cs" />
     <Compile Include="../../../AgroAgents-RetoJohnDeere/Assets/Scripts/Adapters/WebSocket/WebSocketMessageParser.cs" />
+    <Compile Include="../../../AgroAgents-RetoJohnDeere/Assets/Scripts/Adapters/WebSocket/InitRequestSerializer.cs" />
+    <Compile Include="../../../AgroAgents-RetoJohnDeere/Assets/Scripts/Port/Enums.cs" />
+    <Compile Include="../../../AgroAgents-RetoJohnDeere/Assets/Scripts/Port/PortGridPosition.cs" />
+    <Compile Include="../../../AgroAgents-RetoJohnDeere/Assets/Scripts/Port/PortAgentSpec.cs" />
+    <Compile Include="../../../AgroAgents-RetoJohnDeere/Assets/Scripts/Port/SessionRequest.cs" />
   </ItemGroup>
 </Project>
