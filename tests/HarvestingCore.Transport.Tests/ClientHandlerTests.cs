@@ -97,7 +97,14 @@ namespace HarvestingCore.Transport.Tests
         private sealed class StubHost : ISimulationHost
         {
             public bool IsHalted { get; set; } = false;
+            public bool IsInitialized => true;
             public int TickCount { get; private set; }
+
+            public bool Initialize(InitRequest request, out string? error)
+            {
+                error = null;
+                return true;
+            }
 
             public Task TickAsync(CancellationToken ct)
             {

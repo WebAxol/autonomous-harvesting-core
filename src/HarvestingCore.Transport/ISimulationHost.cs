@@ -11,8 +11,22 @@ namespace HarvestingCore.Transport
     /// </summary>
     public interface ISimulationHost
     {
+        /// <summary>
+        /// Whether the client has authored the world yet. Until this is true the
+        /// simulation cannot be ticked or snapshotted.
+        /// </summary>
+        bool IsInitialized { get; }
+
         /// <summary>Whether the simulation has reached a terminal state (Req 6.2).</summary>
         bool IsHalted { get; }
+
+        /// <summary>
+        /// Builds the simulation world from the client-authored <paramref name="request"/>.
+        /// Returns <c>true</c> on success; on failure returns <c>false</c> and sets
+        /// <paramref name="error"/>. May be called once; subsequent successful calls
+        /// replace the world.
+        /// </summary>
+        bool Initialize(InitRequest request, out string? error);
 
         /// <summary>Advances the simulation by one tick (Req 6.2).</summary>
         Task TickAsync(CancellationToken ct);

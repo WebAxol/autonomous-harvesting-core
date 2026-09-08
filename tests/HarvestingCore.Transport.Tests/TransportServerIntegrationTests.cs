@@ -33,6 +33,13 @@ namespace HarvestingCore.Transport.Tests
             private int _tickCount;
 
             public bool IsHalted => false;
+            public bool IsInitialized => true;
+
+            public bool Initialize(InitRequest request, out string? error)
+            {
+                error = null;
+                return true;
+            }
 
             public Task TickAsync(CancellationToken ct)
             {

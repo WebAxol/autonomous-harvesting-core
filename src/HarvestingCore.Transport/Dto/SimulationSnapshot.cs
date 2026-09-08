@@ -13,6 +13,12 @@ namespace HarvestingCore.Transport.Dto
         [JsonPropertyName("tick")]
         public int Tick { get; set; }
 
+        [JsonPropertyName("width")]
+        public int Width { get; set; }
+
+        [JsonPropertyName("height")]
+        public int Height { get; set; }
+
         [JsonPropertyName("isHalted")]
         public bool IsHalted { get; set; }
 

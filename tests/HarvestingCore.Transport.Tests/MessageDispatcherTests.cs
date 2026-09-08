@@ -22,7 +22,15 @@ namespace HarvestingCore.Transport.Tests
         {
             public int TickCount { get; private set; }
             public bool IsHalted { get; set; } = false;
+            public bool IsInitialized { get; set; } = true;
             private int _currentTick;
+
+            public bool Initialize(InitRequest request, out string? error)
+            {
+                error = null;
+                IsInitialized = true;
+                return true;
+            }
 
             public Task TickAsync(CancellationToken ct)
             {
@@ -47,6 +55,13 @@ namespace HarvestingCore.Transport.Tests
         private sealed class ThrowingTickHost : ISimulationHost
         {
             public bool IsHalted => false;
+            public bool IsInitialized => true;
+
+            public bool Initialize(InitRequest request, out string? error)
+            {
+                error = null;
+                return true;
+            }
 
             public Task TickAsync(CancellationToken ct) =>
                 throw new InvalidOperationException("Tick exploded for testing.");
@@ -61,6 +76,12 @@ namespace HarvestingCore.Transport.Tests
         private sealed class ThrowingSnapshotHost : ISimulationHost
         {
             public bool IsHalted => false;
+            public bool IsInitialized => true;
+            public bool Initialize(InitRequest request, out string? error)
+            {
+                error = null;
+                return true;
+            }
             public Task TickAsync(CancellationToken ct) => Task.CompletedTask;
             public SimulationSnapshot GetSnapshot() =>
                 throw new InvalidOperationException("GetSnapshot exploded for testing.");
