@@ -74,7 +74,7 @@ dotnet run --project src/HarvestingCore.Host -- [port] [seed]
 Example — port 9000, seed 42:
 
 ```bash
-dotnet run --project src/HarvestingCore.Host -- 9000 42
+dotnet run --project src/HarvestingCore.Host -- 8765 42
 ```
 
 Press **Ctrl+C** to shut down gracefully.
