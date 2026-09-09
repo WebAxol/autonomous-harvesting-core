@@ -16,5 +16,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\HarvestingCore.Transport\HarvestingCore.Transport.csproj" />
+    <ProjectReference Include="..\..\src\HarvestingCore\HarvestingCore.csproj" />
   </ItemGroup>
 </Project>

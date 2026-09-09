@@ -123,7 +123,8 @@ namespace HarvestingCore.Agents
             GridPosition next = _path[0];
             Cell targetCell = context.Model.CellAt(next);
 
-            if (targetCell.State == CellState.Blocked)
+            if (targetCell.State == CellState.Blocked ||
+                (this is Tractor && targetCell.State == CellState.Crop))
             {
                 _path.Clear();
                 PathInvalidatedThisTick = true;
@@ -171,7 +172,20 @@ namespace HarvestingCore.Agents
             {
                 return false;
             }
-            if (!context.PathFinder.TryCostToNearest(Position, context.Model.RefuelStations, out _, out int cost))
+            Func<Cell, int> stepCost = null;
+
+            if (this is Tractor tractor)
+            {
+                stepCost = cell =>
+                    tractor.NavigationStepCost(cell, context.Config);
+            }
+
+            if (!context.PathFinder.TryCostToNearest(
+                Position,
+                context.Model.RefuelStations,
+                out _,
+                out int cost,
+                stepCost))
             {
                 return false;
             }
