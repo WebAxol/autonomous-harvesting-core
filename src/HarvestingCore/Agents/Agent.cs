@@ -139,7 +139,13 @@ namespace HarvestingCore.Agents
 
             _path.RemoveAt(0);
             Position = next;
+            int fuelBefore = Fuel;
             SetFuel(Fuel - FuelConsumption);
+            int burned = fuelBefore - Fuel;
+            if (burned > 0)
+            {
+                context.AddFuelConsumed(burned);
+            }
             targetCell.RegisterEntry();
 
             if (_path.Count == 0)

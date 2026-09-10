@@ -23,9 +23,11 @@ namespace HarvestingCore.Agents
         public int TickIndex { get; }
 
         private readonly Action<int> _dischargeSink;
+        private readonly Action<int> _fuelConsumedSink;
 
         public AgentContext(WorldModel model, SimulationConfig config, PathFinder pathFinder,
-            AgentManager manager, PendingMutations pending, int tickIndex, Action<int> dischargeSink)
+            AgentManager manager, PendingMutations pending, int tickIndex, Action<int> dischargeSink,
+            Action<int> fuelConsumedSink)
         {
             Model = model ?? throw new ArgumentNullException(nameof(model));
             Config = config ?? throw new ArgumentNullException(nameof(config));
@@ -34,12 +36,20 @@ namespace HarvestingCore.Agents
             Pending = pending ?? throw new ArgumentNullException(nameof(pending));
             TickIndex = tickIndex;
             _dischargeSink = dischargeSink ?? throw new ArgumentNullException(nameof(dischargeSink));
+            _fuelConsumedSink = fuelConsumedSink ?? throw new ArgumentNullException(nameof(fuelConsumedSink));
         }
 
         /// <summary>Called by Agent.DumpLoad to accumulate the discharged total (Req 6.1, 6.3).</summary>
         internal void AddDischarged(int amount)
         {
             _dischargeSink(amount);
+        }
+
+        /// <summary>Called by Agent.Move to accumulate the fleet fuel-consumed total,
+        /// mirroring AddDischarged (Req 1.3).</summary>
+        internal void AddFuelConsumed(int amount)
+        {
+            _fuelConsumedSink(amount);
         }
     }
 }
