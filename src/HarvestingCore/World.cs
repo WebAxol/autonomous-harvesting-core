@@ -32,6 +32,7 @@ namespace HarvestingCore
 
         public int TickIndex { get; private set; }
         public int DischargedTotal { get; private set; }
+        public int FuelConsumedTotal { get; private set; }
         public bool IsHalted => Manager.AllInactive();
         public IReadOnlyList<Agent> Agents => Manager.Agents;
         public IReadOnlyList<Cell> Cells => Model.Cells;
@@ -46,6 +47,7 @@ namespace HarvestingCore
             PathFinder = new PathFinder(Model, Config);
             TickIndex = 0;
             DischargedTotal = 0;
+            FuelConsumedTotal = 0;
         }
 
         /// <summary>Req 16.3 - 16.5: appends the agent to the registration-ordered
@@ -73,7 +75,7 @@ namespace HarvestingCore
         /// is built up front so every agent observes the same TickIndex.</summary>
         public void Tick()
         {
-            var ctx = new AgentContext(Model, Config, PathFinder, Manager, _pending, TickIndex, AddDischarged);
+            var ctx = new AgentContext(Model, Config, PathFinder, Manager, _pending, TickIndex, AddDischarged, AddFuelConsumed);
 
             // Phase 1: every registered agent executes exactly once, in registration
             // order (Req 16.1). Cross-agent effects are recorded in _pending only.
@@ -117,6 +119,14 @@ namespace HarvestingCore
         internal void AddDischarged(int amount)
         {
             DischargedTotal += amount;
+        }
+
+        /// <summary>Backs the fuel-consumed sink AgentContext writes through from
+        /// Agent.Move, mirroring AddDischarged so AgentContext never references this
+        /// façade. FuelConsumedTotal is the read-only projection over that sink.</summary>
+        internal void AddFuelConsumed(int amount)
+        {
+            FuelConsumedTotal += amount;
         }
     }
 }
